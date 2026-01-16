@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru" class="platform-optimized">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>🐋 Битва за Льдину - Ultimate Edition</title>
+    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f2027">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Предзагрузка критических ресурсов -->
+    <link rel="preload" href="styles/main.css" as="style">
+    <link rel="preload" href="src/core/GameEngine.js" as="script">
+    <link rel="preload" href="assets/sprites/characters/player.png" as="image">
+    
+    <!-- Иконки -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/animations.css">
+    <link rel="stylesheet" href="styles/ui.css">
+    
+    <!-- Динамическая загрузка платформенных стилей -->
+    <script>
+        // Определение платформы и загрузка соответствующих стилей
+        (function() {
+            const platform = (() => {
+                const ua = navigator.userAgent;
+                if (/Mobile|Android|iPhone|iPad|iPod/i.test(ua)) return 'mobile';
+                if (/Xbox|PlayStation|Nintendo/i.test(ua)) return 'console';
+                return 'desktop';
+            })();
+            
+            document.documentElement.className += ' ' + platform;
+            
+            // Загрузка платформенных стилей
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'styles/' + platform + '.css';
+            document.head.appendChild(link);
+            
+            // Для консолей добавляем специальные стили
+            if (platform === 'console') {
+                const consoleStyle = document.createElement('link');
+                consoleStyle.rel = 'stylesheet';
+                consoleStyle.href = 'styles/console.css';
+                document.head.appendChild(consoleStyle);
+            }
+        })();
+    </script>
+    
+    <!-- Мета-теги для SEO и соцсетей -->
+    <meta name="description" content="Битва за Льдину - пиксельный рогалик с динамичными боями против тюленей, котов и автобусов. Оптимизировано для ПК, консолей и мобильных.">
+    <meta name="keywords" content="игра, рогалик, тюлень, понсукэ, пиксель-арт, HTML5 игра">
+    <meta name="author" content="Дипсик Команда">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Битва за Льдину - Ultimate Edition">
+    <meta property="og:description" content="Сразитесь с легендарным Понсукэ в эпичном пиксельном приключении!">
+    <meta property="og:image" content="assets/og-image.jpg">
+    <meta property="og:url" content="https://sealbattle.github.io">
+    <meta property="og:type" content="game">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Битва за Льдину">
+    <meta name="twitter:description" content="Пиксельный рогалик с боями против тюленей">
+    
+    <!-- Для консолей -->
+    <meta name="tv-capable" content="true">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="full-screen" content="yes">
+    <meta name="msapplication-tap-highlight" content="no">
+</head>
+<body>
+    <!-- Загрузочный экран -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-animation">
+                <div class="ice-cube"></div>
+                <div class="seal-loader"></div>
+            </div>
+            <div class="loading-text">
+                <h2>БИТВА ЗА ЛЬДИНУ</h2>
+                <p>Загрузка ледяного приключения...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="load-progress"></div>
+                </div>
+                <div class="platform-indicator" id="platform-indicator">
+                    Определяем ваше устройство...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Главный контейнер -->
+    <div id="game-container" class="game-container" style="display: none;">
+        <!-- Заголовок -->
+        <header class="game-header">
+            <div class="header-left">
+                <h1 class="game-title">
+                    <span class="pixel-text">🐋</span>
+                    <span class="title-text">БИТВА ЗА ЛЬДИНУ</span>
+                    <span class="pixel-text">🎮</span>
+                </h1>
+                <div class="subtitle">ULTIMATE EDITION</div>
+            </div>
+            
+            <div class="header-right">
+                <div class="platform-badge" id="platform-badge"></div>
+                <div class="fps-counter" id="fps-counter">120 FPS</div>
+            </div>
+        </header>
+
+        <!-- Основное меню -->
+        <main class="main-content">
+            <div class="menu-grid">
+                <!-- Кнопка игры -->
+                <button class="menu-card primary-card" id="play-button" data-action="play">
+                    <div class="card-icon">🚀</div>
+                    <div class="card-content">
+                        <h3>НОВАЯ ИГРА</h3>
+                        <p>Начать ледяное приключение</p>
+                    </div>
+                    <div class="card-hotkey">ENTER</div>
+                </button>
+
+                <!-- Продолжить -->
+                <button class="menu-card" id="continue-button" data-action="continue">
+                    <div class="card-icon">🎯</div>
+                    <div class="card-content">
+                        <h3>ПРОДОЛЖИТЬ</h3>
+                        <p>Загрузить сохранение</p>
+                    </div>
+                    <div class="card-hotkey">C</div>
+                </button>
+
+                <!-- Настройки -->
+                <button class="menu-card" id="settings-button" data-action="settings">
+                    <div class="card-icon">⚙️</div>
+                    <div class="card-content">
+                        <h3>НАСТРОЙКИ</h3>
+                        <p>Графика, звук, управление</p>
+                    </div>
+                    <div class="card-hotkey">S</div>
+                </button>
+
+                <!-- Секреты -->
+                <button class="menu-card" id="secrets-button" data-action="secrets">
+                    <div class="card-icon">🔮</div>
+                    <div class="card-content">
+                        <h3>СЕКРЕТЫ</h3>
+                        <p>Easter eggs и достижения</p>
+                    </div>
+                    <div class="card-hotkey">H</div>
+                </button>
+
+                <!-- Мультиплеер -->
+                <button class="menu-card" id="multiplayer-button" data-action="multiplayer">
+                    <div class="card-icon">👥</div>
+                    <div class="card-content">
+                        <h3>МУЛЬТИПЛЕЕР</h3>
+                        <p>Игра с друзьями</p>
+                    </div>
+                    <div class="card-hotkey">M</div>
+                </button>
+
+                <!-- Инструкция -->
+                <button class="menu-card" id="help-button" data-action="help">
+                    <div class="card-icon">📖</div>
+                    <div class="card-content">
+                        <h3>ИНСТРУКЦИЯ</h3>
+                        <p>Как играть и советы</p>
+                    </div>
+                    <div class="card-hotkey">F1</div>
+                </button>
+            </div>
+
+            <!-- Быстрые действия -->
+            <div class="quick-actions">
+                <button class="quick-btn" data-action="cheat" title="Секретный код">
+                    <span>⚡</span>
+                </button>
+                <button class="quick-btn" data-action="fullscreen" title="Полный экран">
+                    <span>⛶</span>
+                </button>
+                <button class="quick-btn" data-action="sound" title="Звук">
+                    <span>🔊</span>
+                </button>
+                <button class="quick-btn" data-action="vibration" title="Вибрация">
+                    <span>📳</span>
+                </button>
+            </div>
+
+            <!-- Новости и обновления -->
+            <div class="news-feed">
+                <h3>🔄 ПОСЛЕДНИЕ ОБНОВЛЕНИЯ</h3>
+                <div class="news-item">
+                    <span class="news-badge">NEW</span>
+                    Добавлена оптимизация под PlayStation и Xbox
+                </div>
+                <div class="news-item">
+                    <span class="news-badge">FIX</span>
+                    Исправлена анимация языка Понсукэ
+                </div>
+            </div>
+        </main>
+
+        <!-- Панель управления -->
+        <aside class="control-panel">
+            <h3>🎮 УПРАВЛЕНИЕ</h3>
+            <div class="control-scheme" id="control-scheme">
+                <!-- Динамически загружается в зависимости от платформы -->
+            </div>
+            
+            <!-- Быстрые подсказки -->
+            <div class="quick-tips">
+                <p><strong>Совет:</strong> Используйте пропуск хода для накопления атак</p>
+                <p><strong>Секрет:</strong> Введите COSMICFLOPPA для разблокировки</p>
+            </div>
+        </aside>
+
+        <!-- Футер -->
+        <footer class="game-footer">
+            <div class="footer-left">
+                <div class="version">v2.0.1</div>
+                <div class="build-info" id="build-info"></div>
+            </div>
+            
+            <div class="footer-center">
+                <div class="stats">
+                    <span>👥 Игроков онлайн: <span id="online-count">0</span></span>
+                    <span>🎮 Сессий сегодня: <span id="sessions-count">0</span></span>
+                </div>
+            </div>
+            
+            <div class="footer-right">
+                <a href="https://github.com/sealbattle" target="_blank" class="social-link">GitHub</a>
+                <a href="#" id="report-bug" class="social-link">Сообщить о баге</a>
+                <a href="#" id="toggle-debug" class="social-link">Debug Mode</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Модальные окна -->
+    <div id="modal-overlay" class="modal-overlay"></div>
+    
+    <!-- Модальное окно настроек -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <h2>⚙️ НАСТРОЙКИ</h2>
+            <!-- Настройки загружаются динамически -->
+        </div>
+    </div>
+
+    <!-- Скрипты -->
+    <!-- Загрузка ядра -->
+    <script src="src/core/Platform.js" defer></script>
+    <script src="src/core/Config.js" defer></script>
+    <script src="src/core/Logger.js" defer></script>
+    <script src="src/core/Performance.js" defer></script>
+    
+    <!-- Загрузка остальных модулей через динамический импорт -->
+    <script type="module">
+        // Динамическая загрузка в зависимости от платформы
+        import { PlatformDetector } from './src/core/Platform.js';
+        
+        const platform = PlatformDetector.detect();
+        const config = {
+            mobile: {
+                graphics: 'medium',
+                physicsSteps: 30,
+                maxParticles: 500
+            },
+            desktop: {
+                graphics: 'ultra',
+                physicsSteps: 60,
+                maxParticles: 2000
+            },
+            console: {
+                graphics: 'high',
+                physicsSteps: 60,
+                maxParticles: 1000
+            }
+        };
+        
+        // Применяем конфигурацию
+        window.GAME_CONFIG = config[platform];
+        
+        // Загружаем основной движок
+        import('./src/core/GameEngine.js').then(({ GameEngine }) => {
+            window.gameEngine = new GameEngine({
+                platform: platform,
+                container: document.getElementById('game-container'),
+                loadingScreen: document.getElementById('loading-screen')
+            });
+            
+            // Инициализация
+            gameEngine.init().then(() => {
+                console.log('Игра загружена для платформы:', platform);
+            });
+        });
+    </script>
+    
+    <!-- Service Worker для офлайн-режима -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js', {
+                scope: './'
+            }).then(() => {
+                console.log('Service Worker зарегистрирован');
+            });
+        }
+    </script>
+    
+    <!-- Аналитика (опционально) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXX-Y"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-XXXXX-Y');
+    </script>
+</body>
+</html>
