@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐋 Битва за Льдину</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43);
+            color: #4cc9f0;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+        .game-container {
+            max-width: 800px;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            border: 3px solid #4cc9f0;
+            box-shadow: 0 0 30px rgba(76, 201, 240, 0.5);
+        }
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: #4cc9f0;
+            text-shadow: 3px 3px 0 #000;
+        }
+        .subtitle {
+            font-size: 1.5rem;
+            color: #f72585;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        .play-btn {
+            background: linear-gradient(135deg, #f72585, #b5179e);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 1.8rem;
+            font-family: inherit;
+            border-radius: 15px;
+            cursor: pointer;
+            margin: 30px 0;
+            transition: all 0.3s;
+        }
+        .play-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(247, 37, 133, 0.4);
+        }
+        .status {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid #4cc9f0;
+        }
+        .url {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .mobile-hint {
+            margin-top: 30px;
+            color: #ff9e00;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .play-btn { padding: 15px 30px; font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🐋 БИТВА ЗА ЛЬДИНУ</h1>
+        <div class="subtitle">ПИКСЕЛЬНЫЙ РОГАЛИК</div>
+        
+        <button class="play-btn" onclick="startGame()">
+            🚀 ИГРАТЬ СЕЙЧАС
+        </button>
+        
+        <div class="status" id="status">
+            ⏳ Проверяем настройки GitHub Pages...
+        </div>
+        
+        <div class="url" id="game-url">
+            Ссылка появится здесь после настройки GitHub Pages
+        </div>
+        
+        <div class="mobile-hint">
+            📱 На телефоне: нажмите "Поделиться" → "Добавить на главный экран"
+        </div>
+    </div>
+
+    <script>
+        function startGame() {
+            const status = document.getElementById('status');
+            status.innerHTML = '🎮 Запускаем игру...';
+            
+            // Создаём простую игру для теста
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 400;
+            canvas.style.width = '100%';
+            canvas.style.maxWidth = '800px';
+            canvas.style.height = 'auto';
+            canvas.style.border = '3px solid #4cc9f0';
+            canvas.style.borderRadius = '15px';
+            canvas.style.margin = '20px auto';
+            canvas.style.display = 'block';
+            canvas.style.background = '#0f2027';
+            
+            document.querySelector('.game-container').appendChild(canvas);
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Простая графика
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Фон
+                ctx.fillStyle = '#0f2027';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Текст
+                ctx.fillStyle = '#4cc9f0';
+                ctx.font = '30px "Courier New", monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText('🎮 ИГРА ЗАПУЩЕНА!', canvas.width/2, 100);
+                
+                ctx.fillStyle = '#f72585';
+                ctx.font = '20px "Courier New", monospace';
+                ctx.fillText('Игрок: [🐋] vs Противник: [😾]', canvas.width/2, 200);
+                
+                ctx.fillStyle = '#ff9e00';
+                ctx.font = '16px "Courier New", monospace';
+                ctx.fillText('Управление: WASD или стрелки', canvas.width/2, 300);
+                
+                // Простой игрок
+                ctx.fillStyle = '#4cc9f0';
+                ctx.beginPath();
+                ctx.arc(canvas.width/2 - 100, 250, 30, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Противник
+                ctx.fillStyle = '#f72585';
+                ctx.beginPath();
+                ctx.arc(canvas.width/2 + 100, 250, 30, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            draw();
+            
+            // Простое управление
+            let playerX = canvas.width/2 - 100;
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft' || e.key === 'a') playerX -= 20;
+                if (e.key === 'ArrowRight' || e.key === 'd') playerX += 20;
+                
+                draw();
+                ctx.fillStyle = '#4cc9f0';
+                ctx.beginPath();
+                ctx.arc(playerX, 250, 30, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // Для мобильных
+            canvas.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                playerX = touch.clientX - canvas.getBoundingClientRect().left;
+                
+                draw();
+                ctx.fillStyle = '#4cc9f0';
+                ctx.beginPath();
+                ctx.arc(playerX, 250, 30, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            status.innerHTML = '✅ Игра запущена! Управляйте стрелками или касанием';
+        }
+        
+        // Показываем URL
+        function updateURL() {
+            const url = `https://${window.location.hostname}${window.location.pathname}`;
+            document.getElementById('game-url').innerHTML = 
+                `<strong>Ссылка игры:</strong><br>${url}`;
+        }
+        
+        // Проверяем GitHub Pages
+        function checkGitHubPages() {
+            const status = document.getElementById('status');
+            
+            if (window.location.hostname.includes('github.io')) {
+                status.innerHTML = '✅ GitHub Pages работает!';
+                status.style.borderLeftColor = '#38b000';
+            } else {
+                fetch(window.location.href)
+                    .then(response => {
+                        if (response.ok) {
+                            status.innerHTML = '✅ Сервер отвечает!';
+                            status.style.borderLeftColor = '#38b000';
+                        }
+                    })
+                    .catch(() => {
+                        status.innerHTML = 
+                            '⚠️ GitHub Pages не настроен<br>' +
+                            '<small>Зайдите в Settings → Pages → Branch: main → Save</small>';
+                        status.style.borderLeftColor = '#ff9e00';
+                    });
+            }
+            
+            updateURL();
+        }
+        
+        // Запускаем проверку
+        checkGitHubPages();
+        setInterval(updateURL, 5000); // Обновляем URL каждые 5 сек
+    </script>
+</body>
+</html>
