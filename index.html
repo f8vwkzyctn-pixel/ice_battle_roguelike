@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ru" data-time-of-day="day">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>❄️ Битва за Льдину | Пиксельный рогалик</title>
+    <meta name="author" content="Russian_Tatsymaki_Official, DeepSeek AI">
+    
+    <style>
+        :root {
+            --primary-ice: #4fc3f7;
+            --deep-ice: #0277bd;
+            --snow: #e3f2fd;
+            --aurora: #00e5ff;
+            --blood: #ff5252;
+            --ui-bg: rgba(10, 25, 47, 0.85);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            image-rendering: pixelated;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a192f 0%, #1a365d 100%);
+            color: var(--snow);
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        
+        #dynamic-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            transition: background 2s ease;
+            background: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 100%);
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        #game-canvas {
+            background: linear-gradient(to bottom, #0c2d4d 0%, #1a4d7a 30%, #0a2d5a 70%, #081c30 100%);
+            border: 6px solid var(--primary-ice);
+            border-radius: 12px;
+            box-shadow: 0 0 60px rgba(79, 195, 247, 0.4), inset 0 0 40px rgba(2, 119, 189, 0.3);
+            width: 800px;
+            height: 600px;
+            max-width: 95vw;
+            max-height: 70vh;
+            display: none;
+            cursor: crosshair;
+        }
+        
+        #main-menu {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--ui-bg);
+            border: 4px solid var(--primary-ice);
+            border-radius: 20px;
+            padding: 40px;
+            min-width: 500px;
+            max-width: 90vw;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(79, 195, 247, 0.5);
+            z-index: 100;
+        }
+        
+        .game-title {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px var(--aurora), 3px 3px 0 #000;
+            letter-spacing: 3px;
+            background: linear-gradient(to right, #4fc3f7, #00e5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: title-glow 3s infinite alternate;
+        }
+        
+        @keyframes title-glow {
+            from { filter: drop-shadow(0 0 5px var(--aurora)); }
+            to { filter: drop-shadow(0 0 15px var(--aurora)); }
+        }
+        
+        .time-display {
+            color: #bb86fc;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+        }
+        
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .menu-btn {
+            font-family: inherit;
+            font-size: 1.5rem;
+            padding: 20px 40px;
+            background: linear-gradient(145deg, rgba(79, 195, 247, 0.8) 0%, rgba(2, 119, 189, 0.9) 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-shadow: 2px 2px 0 #000;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .menu-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 0 0 30px rgba(79, 195, 247, 0.6);
+        }
+        
+        .menu-btn:active {
+            transform: translateY(0);
+        }
+        
+        #device-indicator {
+            position: fixed;
+            top: 20px; right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            border: 2px solid var(--primary-ice);
+            z-index: 1000;
+        }
+        
+        #game-ui {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+        }
+        
+        .health-bar {
+            position: absolute;
+            top: 30px; left: 30px;
+            width: 300px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 3px solid #333;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .health-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #ff3333 0%, #ff9933 50%, #66ff66 100%);
+            transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .health-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #000;
+            color: white;
+        }
+        
+        #battle-log {
+            position: absolute;
+            top: 30px; right: 30px;
+            width: 300px;
+            height: 200px;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid var(--primary-ice);
+            border-radius: 10px;
+            padding: 10px;
+            overflow-y: auto;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        #touch-controls {
+            display: none;
+            position: absolute;
+            bottom: 50px;
+            width: 100%;
+            justify-content: space-around;
+            pointer-events: auto;
+        }
+        
+        .touch-btn {
+            width: 80px;
+            height: 80px;
+            background: rgba(79, 195, 247, 0.3);
+            border: 3px solid var(--primary-ice);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        /* Стили авторов */
+        .game-authors {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            z-index: 1000;
+            padding: 8px 0;
+            background: linear-gradient(to top, rgba(10, 25, 47, 0.9), transparent);
+        }
+        
+        .author-link {
+            color: #4fc3f7;
+            text-decoration: none;
+            margin: 0 5px;
+            transition: color 0.3s;
+        }
+        
+        .author-link:hover {
+            color: #00e5ff;
+            text-shadow: 0 0 5px rgba(79, 195, 247, 0.5);
+        }
+        
+        .ai-credit {
+            color: #ff9800;
+            font-weight: bold;
+        }
+        
+        .version {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 10px;
+            margin-left: 10px;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .game-title { font-size: 2.5rem; }
+            #game-canvas { height: 50vh; }
+            #main-menu { padding: 20px; min-width: 90vw; }
+            .menu-btn { font-size: 1.2rem; padding: 15px; }
+            #touch-controls { display: flex; }
+        }
+        
+        @media (max-width: 480px) {
+            .game-title { font-size: 2rem; }
+            #game-canvas { height: 40vh; }
+            .menu-buttons { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="dynamic-bg"></div>
+    
+    <div id="device-indicator">
+        Устройство: <span id="device-name">Определение...</span>
+    </div>
+    
+    <div id="main-menu">
+        <h1 class="game-title">❄️ БИТВА ЗА ЛЬДИНУ</h1>
+        <div class="time-display" id="time-display">Загрузка времени...</div>
+        
+        <div class="menu-buttons">
+            <button class="menu-btn" id="start-btn">
+                🎮 НАЧАТЬ ИГРУ
+            </button>
+            <button class="menu-btn" id="multiplayer-btn">
+                👥 МУЛЬТИПЛЕЕР
+            </button>
+            <button class="menu-btn" id="settings-btn">
+                ⚙️ НАСТРОЙКИ
+            </button>
+            <button class="menu-btn" id="secrets-btn">
+                🔒 СЕКРЕТЫ
+            </button>
+        </div>
+        
+        <div id="menu-hint" style="margin-top: 20px; color: #bb86fc; font-size: 0.9em;">
+            💡 Совет: Тюлени уворачиваются от атак!
+        </div>
+    </div>
+    
+    <div class="game-container" id="game-container">
+        <canvas id="game-canvas" width="800" height="600">
+            Ваш браузер не поддерживает Canvas
+        </canvas>
+        
+        <div id="game-ui">
+            <div class="health-bar">
+                <div class="health-fill" id="player-health" style="width: 100%"></div>
+                <div class="health-text" id="health-text">❤️ 100/100</div>
+            </div>
+            
+            <div class="health-bar" style="top: 80px; left: 30px;">
+                <div class="health-fill" id="enemy-health" style="width: 100%; background: linear-gradient(90deg, #ff3333 0%, #ff6666 100%);"></div>
+                <div class="health-text">🦭 Тюлень: <span id="enemy-hp">25</span>/25</div>
+            </div>
+            
+            <div id="battle-log">
+                <div>🎮 Битва начинается!</div>
+            </div>
+        </div>
+        
+        <div id="touch-controls">
+            <div class="touch-btn" data-action="left">←</div>
+            <div class="touch-btn" data-action="right">→</div>
+            <div class="touch-btn" data-action="attack">⚔️</div>
+            <div class="touch-btn" data-action="jump">↑</div>
+        </div>
+    </div>
+    
+    <div class="game-authors">
+        Создано: 
+        <a href="https://github.com/f8vwkzyctn-pixel" class="author-link" target="_blank">
+            Russian_Tatsymaki_Official
+        </a>
+        с помощью 
+        <a href="https://www.deepseek.com" class="author-link ai-credit" target="_blank">
+            DeepSeek AI
+        </a>
+        <span class="version">v1.0 Alpha</span>
+    </div>
+
+    <!-- Подключаем скрипты -->
+    <script src="scripts/input-manager.js"></script>
+    <script src="scripts/dynamic-menu.js"></script>
+    <script src="scripts/enemy-base.js"></script>
+    <script src="scripts/seal.js"></script>
+    <script src="scripts/multiplayer-client.js"></script>
+    <script src="scripts/game.js"></script>
+    
+    <!-- Главный скрипт игры -->
+    <script>
+    // ============================================
+    // ГЛАВНЫЙ СКРИПТ ИГРЫ
+    // ============================================
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🎮 Загрузка игры "Битва за Льдину"...');
+        
+        // Инициализация игры
+        setTimeout(initializeGame, 100);
+    });
+    
+    function initializeGame() {
+        console.log('🔧 Инициализация игровых систем...');
+        
+        // 1. Настройка времени
+        updateTime();
+        setInterval(updateTime, 60000);
+        
+        // 2. Исправление кнопок меню
+        fixMenuButtons();
+        
+        // 3. Обнаружение устройства
+        detectDevice();
+        
+        // 4. Проверка загрузки скриптов
+        checkScriptsLoaded();
+        
+        console.log('✅ Игра готова к запуску!');
+    }
+    
+    function updateTime() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const timeDisplay = document.getElementById('time-display');
+        
+        if (timeDisplay) {
+            let timeOfDay = '🌞';
+            const hour = now.getHours();
+            
+            if (hour >= 5 && hour < 10) timeOfDay = '🌅';
+            else if (hour >= 10 && hour < 17) timeOfDay = '🌞';
+            else if (hour >= 17 && hour < 21) timeOfDay = '🌇';
+            else if (hour >= 21 && hour < 24) timeOfDay = '🌙';
+            else timeOfDay = '🌌';
+            
+            timeDisplay.textContent = `${timeOfDay} ${hours}:${minutes}`;
+        }
+    }
+    
+    function fixMenuButtons() {
+        console.log('🔧 Настройка кнопок меню...');
+        
+        // Кнопка "Начать игру"
+        const startBtn = document.getElementById('start-btn');
+        if (startBtn) {
+            startBtn.onclick = function() {
+                console.log('🚀 Запуск игры...');
+                
+                // Скрыть меню
+                document.getElementById('main-menu').style.display = 'none';
+                
+                // Показать игру
+                const gameContainer = document.getElementById('game-container');
+                const gameCanvas = document.getElementById('game-canvas');
+                
+                gameContainer.style.display = 'flex';
+                gameCanvas.style.display = 'block';
+                
+                // Запустить игровой движок
+                if (window.game && typeof window.game.start === 'function') {
+                    window.game.start();
+                    console.log('✅ Игра запущена!');
+                } else {
+                    console.error('❌ GameEngine не найден!');
+                    alert('Игровой движок не загрузился. Обнови страницу.');
+                }
+            };
+            
+            // Активировать кнопку
+            startBtn.style.cursor = 'pointer';
+            startBtn.disabled = false;
+        }
+        
+        // Остальные кнопки
+        document.getElementById('multiplayer-btn').onclick = function() {
+            alert('Мультиплеер появится в следующем обновлении! 🎮');
+        };
+        
+        document.getElementById('settings-btn').onclick = function() {
+            alert('Настройки будут доступны в версии 1.1 ⚙️');
+        };
+        
+        document.getElementById('secrets-btn').onclick = function() {
+            const secrets = [
+                '🔓 Ледяной Воин - победи 10 тюленей',
+                '🔒 Повелитель Тюленей - победи всех боссов',
+                '🔒 Арктический исследователь - играй 1 час',
+                '🔒 Без прокачки - пройди игру без улучшений'
+            ];
+            alert('🔑 Секретные концовки:\n\n' + secrets.join('\n'));
+        };
+        
+        console.log('✅ Кнопки настроены!');
+    }
+    
+    function detectDevice() {
+        const deviceName = document.getElementById('device-name');
+        if (!deviceName) return;
+        
+        const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const isMobile = /mobile|android|iphone/i.test(navigator.userAgent);
+        
+        if (isTouch || isMobile) {
+            deviceName.textContent = 'Телефон/Планшет';
+            document.getElementById('touch-controls').style.display = 'flex';
+            console.log('📱 Мобильное устройство обнаружено');
+        } else {
+            deviceName.textContent = 'Компьютер';
+            console.log('💻 Компьютерное устройство');
+        }
+    }
+    
+    function checkScriptsLoaded() {
+        console.log('📦 Проверка загрузки скриптов:');
+        
+        const requiredScripts = [
+            'InputManager', 'DynamicMenu', 'GameEngine', 'Seal'
+        ];
+        
+        let allLoaded = true;
+        requiredScripts.forEach(script => {
+            const loaded = window[script] !== undefined;
+            console.log(`  ${loaded ? '✅' : '❌'} ${script}`);
+            if (!loaded) allLoaded = false;
+        });
+        
+        if (allLoaded) {
+            console.log('✅ Все скрипты загружены успешно!');
+        } else {
+            console.warn('⚠️ Не все скрипты загружены. Игра может работать некорректно.');
+            setTimeout(checkScriptsLoaded, 1000); // Проверить ещё раз через секунду
+        }
+    }
+    
+    // Автозапуск для отладки (можно отключить)
+    if (window.location.search.includes('autostart')) {
+        setTimeout(() => {
+            const startBtn = document.getElementById('start-btn');
+            if (startBtn) startBtn.click();
+        }, 2000);
+    }
+    
+    // Сообщение об успешной загрузке
+    console.log('✨ Игра "Битва за Льдину" загружена!');
+    console.log('👥 Авторы: Russian_Tatsymaki_Official & DeepSeek AI');
+    console.log('🎮 Управление: WASD/Стрелки для движения, Пробел для атаки');
+    </script>
+</body>
+</html>
