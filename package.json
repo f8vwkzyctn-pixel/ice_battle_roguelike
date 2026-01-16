@@ -1,0 +1,94 @@
+{
+  "name": "ice-battle-roguelike",
+  "version": "2.0.1",
+  "description": "Битва за Льдину - пиксельный рогалик с оптимизацией под все платформы",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "build": "node tools/build.js",
+    "dev": "lite-server",
+    "test": "jest",
+    "test:e2e": "playwright test",
+    "lint": "eslint src/**/*.js",
+    "format": "prettier --write \"src/**/*.js\" \"styles/**/*.css\"",
+    "analyze": "webpack-bundle-analyzer dist/stats.json",
+    "deploy": "gh-pages -d dist",
+    "optimize-images": "node tools/image-optimizer.js",
+    "generate-sprites": "node tools/sprite-packer.js",
+    "convert-audio": "node tools/audio-converter.js"
+  },
+  "keywords": [
+    "game",
+    "roguelike",
+    "pixel-art",
+    "html5",
+    "mobile",
+    "console",
+    "desktop"
+  ],
+  "author": "Дипсик Команда",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sealbattle/ice-battle-roguelike.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sealbattle/ice-battle-roguelike/issues"
+  },
+  "homepage": "https://sealbattle.github.io/ice-battle-roguelike",
+  "devDependencies": {
+    "@babel/core": "^7.22.0",
+    "@babel/preset-env": "^7.22.0",
+    "@playwright/test": "^1.35.0",
+    "autoprefixer": "^10.4.14",
+    "babel-loader": "^9.1.2",
+    "clean-css": "^5.3.2",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.8.1",
+    "css-minimizer-webpack-plugin": "^5.0.0",
+    "eslint": "^8.42.0",
+    "eslint-config-prettier": "^8.8.0",
+    "gh-pages": "^5.0.0",
+    "html-minifier": "^4.0.0",
+    "html-webpack-plugin": "^5.5.3",
+    "jest": "^29.5.0",
+    "jest-environment-jsdom": "^29.5.0",
+    "lite-server": "^2.6.1",
+    "postcss": "^8.4.24",
+    "postcss-loader": "^7.3.3",
+    "prettier": "^2.8.8",
+    "serve": "^14.2.0",
+    "terser-webpack-plugin": "^5.3.9",
+    "uglify-js": "^3.17.4",
+    "webpack": "^5.85.0",
+    "webpack-bundle-analyzer": "^4.8.0",
+    "webpack-cli": "^5.1.1",
+    "workbox-webpack-plugin": "^7.0.0"
+  },
+  "dependencies": {
+    "howler": "^2.2.4",
+    "localforage": "^1.10.0",
+    "pixi.js": "^7.3.0",
+    "sat": "^0.9.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all",
+      "not ie > 0",
+      "not ie_mob > 0",
+      "not baidu > 0"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "private": true
+}
