@@ -1,0 +1,20 @@
+{
+  "name": "ice-battle-roguelike",
+  "version": "1.0.0",
+  "description": "Пиксельный рогалик с боями против тюленей",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server --port=8080",
+    "build": "node build.js",
+    "dev": "concurrently \"live-server\" \"node server.js\""
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "socket.io": "^4.5.0",
+    "live-server": "^1.2.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0",
+    "terser": "^5.0.0"
+  }
+}
