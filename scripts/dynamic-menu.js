@@ -146,7 +146,25 @@ class DynamicMenu {
         setInterval(() => {
             this.updateTime();
             this.updateTheme();
-            this.updateUI();
+            this.updateUI() {
+    // Показываем устройство в индикаторе
+    if (this.elements.deviceIndicator) {
+        const input = window.InputManager;
+        if (input && input.getDeviceInfo) {
+            const device = input.getDeviceInfo();
+            this.elements.deviceIndicator.innerHTML = `
+                📱 Устройство: <span style="color: #4fc3f7">${device.name}</span>
+                | 🎮 Управление: <span style="color: #ff9800">${device.type}</span>
+            `;
+        } else {
+            this.elements.deviceIndicator.innerHTML = `
+                📱 Устройство: <span style="color: #ff5252">Определение...</span>
+            `;
+        }
+    }
+    
+    // Остальной код...
+}
         }, 1000);
         
         // Смена подсказок каждые 10 секунд
